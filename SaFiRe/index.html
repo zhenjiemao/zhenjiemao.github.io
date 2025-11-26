@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Mask Grounding is an innovative auxiliary task that can be added during training to improve model performance for Referring Image Segmentation (RIS)">
+  <meta name="keywords" content="Mask, Grounding, Referring, Image, Segmentation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SaFiRe: Saccade-Fixation Reiteration with Mamba for Referring Image Segmentation</title>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-spaced is-1 publication-title">SaFiRe: Saccade-Fixation Reiteration with Mamba for Referring Image Segmentation</h1>
+          <h2 class="subtitle is-5" style="color: #ff3860; margin-bottom: 12px; margin-top: -12px;">NeurIPS 2025</h2>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              Zhenjie Mao<sup>1</sup>,</span>
+            <span class="author-block">
+              Yuhuan Yang<sup>1</sup>,</span>
+            <span class="author-block">
+              Chaofan Ma<sup>1</sup>,</span>
+            <span class="author-block">
+              Dongsheng Jiang<sup>3</sup>,</span><br>
+            <span class="author-block">
+              Jiangchao Yao<sup>1,2</sup>†,</span>
+            <span class="author-block">
+              Ya Zhang<sup>1,2</sup>†,</span>
+            <span class="author-block">
+              Yanfeng Wang<sup>1,2</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Shanghai Jiao Tong University</span>
+            <span class="author-block"><sup>2</sup>Shanghai AI Laboratory</span>
+            <span class="author-block"><sup>3</sup>Huawei Inc.</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2510.10160"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2510.10160"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/zhenjiemao/SaFiRe"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>SaFiRe Model</span>
+                  </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/zhenjiemao/aRefCOCO"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>aRefCOCO Dataset</span>
+                  </a>
+              </span>
+              <span class="link-block">
+                <a href="https://huggingface.co/datasets/zhenjiemao/aRefCOCO"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" alt="Hugging Face" style="height: 20px; vertical-align: middle;">
+                  </span>
+                  <span>aRefCOCO Dataset</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/teaser.png" alt="Referential Ambiguity Teaser">
+      <h2 class="subtitle">
+        <!-- <i> -->
+          <b>Referential Ambiguity: One Object, Divergent Attention.</b>
+          Attention maps under three types of referring expressions, all targeting the same object.
+          <b>(a) Simple expression</b> yields accurate focus.
+          <b>(b) Object-distracting expression</b> misguides attention to irrelevant regions.
+          <b>(c) Category-implicit expression</b> leads to dispersed attention.
+          This highlights the challenge of referential ambiguity for "key word/concept matching" methods and motivates our saccade-fixation framework.
+        <!-- </i> -->
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          Referring Image Segmentation (RIS) aims to segment the target object in an image given a natural language expression. While recent methods leverage pre-trained vision backbones and more training corpus to achieve impressive results, they predominantly focus on simple expressions—short, clear noun phrases like “red car” or “left girl”. This simplification often reduces RIS to a key word/concept matching problem, limiting the model’s ability to handle referential ambiguity in expressions. In this work, we identify two challenging real-world scenarios: object-distracting expressions, which involve multiple entities with contextual cues, and category-implicit expressions, where the object class is not explicitly stated. To address the challenges, we propose a novel framework, SaFiRe, which mimics the human two-phase cognitive process—first forming a global understanding, then refining it through detail-oriented inspection. This is naturally supported by Mamba’s scan-then-update property, which aligns with our phased design and enables efficient multi-cycle refinement with linear complexity. We further introduce aRefCOCO, a new benchmark designed to evaluate RIS models under ambiguous referring expressions. Extensive experiments on both standard and proposed datasets demonstrate the superiority of SaFiRe over state-of-the-art baselines.
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Method. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Framework</h2>
+        <div class="content has-text-justified">
+          <img src="./static/images/method.png" alt="empty">
+          <p>
+            <br>
+            <b>Overview of the SaFiRe Architecture.</b> For each SFLayer, it consists of Saccade operation and Fixation operation. The Saccade operation corresponds to the phase of global semantic understanding. It enables the model to rapidly scan both visual and textual inputs, establishing a coarse-level alignment between the two modalities. The Fixation operation mirrors the cross-modal refinement phase. It allows the model to attend to specific local visual regions while re-examining the textual input, facilitating the extraction of fine-grained, task-relevant information.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Method. -->
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Main Results</h2>
+        <div class="content has-text-justified">
+          <p style="text-align: center; margin-bottom: 0;">
+            <b>Models Trained on Single Datasets</b>
+          </p>
+          <img src="./static/images/table1.png" alt="empty">
+          <p>
+            <b>Traditional Benchmarks.</b> This table presents a comparison of our SaFiRe with state-of-the-art methods on the RefCOCO, RefCOCO+, and RefCOCOg datasets with oIoU metric, where all models are trained independently on single datasets. Results show that SaFiRe outperforms all other methods across all datasets. In particular, SaFiRe achieved a great improvement on RefCOCOg, where the task involves more complex and fine-grained textual descriptions compared to RefCOCO.
+          </p>
+
+          <p style="text-align: center; margin-bottom: 0;">
+            <b>Models Trained on Mixed Datasets</b>
+          </p>
+          <img src="./static/images/table2.png" alt="Table 2">
+          <p>
+            <b>Mixed Datasets Training.</b> This table compares SaFiRe with recent SOTA methods trained under mixed-data configuration. The precise dataset mixtures differ across methods. To avoid conflating performance with training-corpus choices, we report each baseline under its official training configuration. In general, these models draw on subsets and combinations of widely used referring-expression and segmentation datasets, such as RefCOCO, RefCOCO+, RefCOCOg, COCO, Object365, ADE20K, COCO-Stuff, PACO-LVIS, PASCAL-Part, GranD, VOC2010, MUSE, gRefCOCO, and COCO-Interactive. Our training corpus follows a mixed-data setup based on the RefCOCO series and COCO-Stuff, which is comparatively smaller. However, the results show that SaFiRe achieves competitive results on all three benchmarks, particularly excelling on the more challenging RefCOCOg and RefCOCO+ benchmarks. Notably, it surpasses several SAM-enabled models (e.g., u-LLaVA, GSVA) across multiple splits.
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">aRefCOCO</h2>
+        <div class="content has-text-justified">
+          <p>
+            We introduce aRefCOCO (ambiguous RefCOCO), a test-only benchmark constructed by reannotating a subset of images from the RefCOCO and RefCOCOg test splits with more challenging referring expressions. It is specifically designed to evaluate model performance on object-distracting and category-implicit scenarios.
+          </p>
+          <p style="text-align: center; margin-bottom: 0;">
+            <b>Sentence-Level Statistics and Text Embedding Distributions Comparison</b>
+          </p>
+          <img src="./static/images/dataset.png" alt="aRefCOCO Statistics">
+          <p>
+            Quantitative comparisons highlight the distinct features of aRefCOCO compared to the original descriptions: <b>Description Length.</b> aRefCOCO contains a higher proportion of longer sentences and significantly reduces short, phrase-like descriptions, making it more relevant for real-world RIS tasks. <b>Relational Words.</b> There is a significant increase in relational words, particularly prepositions, contributing to more structurally and semantically complex sentences. <b>Text Embedding Distribution.</b> The aRefCOCO embeddings show a clear shift from their original counterparts, indicating that the rewritten descriptions introduce substantial semantic variations rather than minor lexical edits.
+          </p>
+          
+          <p style="text-align: center; margin-bottom: 0;">
+            <b>Zero-shot Evaluation on aRefCOCO</b>
+          </p>
+          <img src="./static/images/table3.png" alt="Table 3" style="width: 60%; display: block; margin: 0 auto;">
+          <p>
+            We conduct a zero-shot transfer evaluation of different models on the aRefCOCO. The expressions in aRefCOCO are notably ambiguous and more complex, frequently lacking explicit category indications and containing more distractors, which demands a sophisticated cross-modal understanding for precise segmentation. For fair comparison, all models have NOT been trained on aRefCOCO. As shown in above table, our model achieves the best overall performance on aRefCOCO, demonstrating its strong ability to precisely localize referred objects under ambiguous language conditions.
+          </p>
+
+          <p style="text-align: center; margin-bottom: 0;">
+            <b>Qualitative Comparison on aRefCOCO</b>
+          </p>
+          <img src="./static/images/visualizations.png" alt="Visualizations">
+          <p>
+            We compare SaFiRe with other SOTA methods on challenging cases from aRefCOCO, demonstrating our method's superior capability in handling referential ambiguity. The visualizations reveal that SaFiRe achieves more accurate segmentation results in scenarios where multiple similar objects coexist and the referring expression lacks explicit category information. While baseline methods often struggle with ambiguous expressions and may segment incorrect objects or fail to distinguish subtle differences.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{mao2025safire,
+      title={SaFiRe: Saccade-Fixation Reiteration with Mamba for Referring Image Segmentation}, 
+      author={Zhenjie Mao and Yuhuan Yang and Chaofan Ma and Dongsheng Jiang and Jiangchao Yao and Ya Zhang and Yanfeng Wang},
+      journal={Advances in Neural Information Processing Systems (NeurIPS)},
+      year={2025}
+    }</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            Thanks for the project template by <a href="https://github.com/nerfies/nerfies.github.io"> Nerfies Project</a>. 
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
