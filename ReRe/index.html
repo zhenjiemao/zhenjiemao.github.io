@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Reason, Then Re-reason is a training-free inference-time framework that improves egocentric video spatial reasoning through cross-view revisiting.">
+  <meta name="keywords" content="ReRe, spatial reasoning, multimodal large language models, egocentric video, novel view synthesis, geometry-to-video">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reason, Then Re-reason: Cross-view Revisiting Improves Spatial Reasoning</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <style>
+    :root {
+      --rere-ink: #15202b;
+      --rere-muted: #526170;
+      --rere-accent: #0f766e;
+      --rere-accent-soft: #e7f4f1;
+      --rere-warm: #b45309;
+      --rere-warm-soft: #fff4df;
+      --rere-line: #dde5ea;
+    }
+
+    body {
+      color: var(--rere-ink);
+    }
+
+    .publication-title {
+      line-height: 1.12;
+    }
+
+    .venue {
+      color: #d23f31;
+      font-weight: 700;
+      margin-bottom: 12px;
+      margin-top: -8px;
+    }
+
+    .rere-kicker {
+      color: var(--rere-accent);
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+    }
+
+    .key-points {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 1.25rem;
+      text-align: left;
+    }
+
+    .key-point {
+      border-left: 4px solid var(--rere-accent);
+      background: var(--rere-accent-soft);
+      padding: 1rem;
+    }
+
+    .key-point strong {
+      display: block;
+      font-family: 'Google Sans', sans-serif;
+      margin-bottom: 0.35rem;
+    }
+
+    .pipeline {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: 720px;
+      margin: 1.25rem auto;
+    }
+
+    .pipeline-step {
+      background: #fff;
+      border: 1px solid var(--rere-line);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: left;
+    }
+
+    .pipeline-step .tag {
+      background: var(--rere-warm-soft);
+      color: var(--rere-warm);
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .figure-caption {
+      color: var(--rere-muted);
+      font-size: 0.98rem;
+      line-height: 1.55;
+      margin-top: 0.75rem;
+      text-align: justify;
+    }
+
+    .result-table {
+      font-size: 0.94rem;
+      margin: 1rem auto 1.3rem;
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    .result-table table {
+      border-collapse: collapse;
+      min-width: 680px;
+      width: 100%;
+    }
+
+    .result-table th,
+    .result-table td {
+      border-bottom: 1px solid var(--rere-line);
+      padding: 0.65rem 0.7rem;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .result-table th:first-child,
+    .result-table td:first-child {
+      text-align: left;
+    }
+
+    .result-table thead th {
+      background: #f4f7f8;
+      font-weight: 700;
+    }
+
+    .ours-row {
+      background: #fff7ed;
+      font-weight: 700;
+    }
+
+    .ours-row td:first-child {
+      padding-left: 2.6rem;
+    }
+
+    .gain {
+      color: #c2410c;
+      font-weight: 700;
+    }
+
+    .gain::before {
+      content: "(";
+    }
+
+    .gain::after {
+      content: ")";
+    }
+
+    .analysis-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 1rem;
+      text-align: left;
+    }
+
+    .analysis-item {
+      border: 1px solid var(--rere-line);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .analysis-item strong {
+      color: var(--rere-accent);
+      display: block;
+      font-family: 'Google Sans', sans-serif;
+      margin-bottom: 0.35rem;
+    }
+
+    .section-divider {
+      border-top: 1px solid var(--rere-line);
+    }
+
+    @media (max-width: 768px) {
+      .key-points,
+      .pipeline,
+      .analysis-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .author-block {
+        margin-right: 0.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-spaced is-1 publication-title">Reason, Then Re-reason: Cross-view Revisiting Improves Spatial Reasoning</h1>
+          <h2 class="subtitle is-5 venue">ICML 2026</h2>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Chaofan Ma<sup>1*</sup></span>
+            <span class="author-block">Zhenjie Mao<sup>1*</sup></span>
+            <span class="author-block">Yuhuan Yang<sup>1</sup></span>
+            <span class="author-block">Fanqin Zeng<sup>1</sup></span><br>
+            <span class="author-block">Yue Shi<sup>2</sup></span>
+            <span class="author-block">Yingjie Zhou<sup>2</sup></span>
+            <span class="author-block">Xiaofeng Cao<sup>3</sup></span>
+            <span class="author-block">Jiangchao Yao<sup>1</sup></span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Cooperative Medianet Innovation Center, Shanghai Jiao Tong University</span><br>
+            <span class="author-block"><sup>2</sup>Shanghai Jiao Tong University</span>
+            <span class="author-block"><sup>3</sup>Tongji University</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="./static/_Camera_Ready__Reason__Then_Re_reason__Cross_view_Revisiting_Improves_Spatial_Reasoning.pdf"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+            </div>
+          </div>
+
+          <p class="is-size-6" style="color:#6b7280;">* Equal contribution. Co-first authors are listed alphabetically.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/teaser.png" alt="ReRe teaser cases showing egocentric video, synthesized novel view, and corrected reasoning">
+      <h2 class="subtitle">
+        <b>Spatial reasoning should be revisitable.</b>
+        Given an egocentric video, an MLLM commits to plausible but wrong answers when the camera trajectory leaves key evidence occluded.
+        ReRe forms an initial hypothesis (<span style="color:#3b6fd4;font-weight:600;">Reason</span>), then revisits it under a synthesized novel view (<span style="color:#d23f31;font-weight:600;">Re-reason</span>) that exposes the complementary geometry, flipping wrong answers to right, as shown below for object counting and route planning.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Spatial reasoning from egocentric videos is inherently challenging because the observable evidence is constrained by the camera trajectory.
+            Existing methods rely on single-turn inference, forcing models to resolve geometric ambiguity through semantic priors rather than verifiable evidence.
+            We argue that spatial reasoning should be <i>revisitable</i>: conclusions formed under limited evidence should remain open to revision when complementary viewpoints become available.
+            Building on this insight, we propose <b>Reason, then Re-reason</b> (<b>ReRe</b>), a training-free, inference-time framework with two phases.
+            In the <i>Reason Phase</i>, an MLLM forms a spatial hypothesis from the original video.
+            In the <i>Re-reason Phase</i>, it verifies or revises the hypothesis by observing a synthesized novel-view video.
+            To enable effective cross-view revisiting, we design a <b>Geometry-to-Video</b> pipeline that renders strategically complementary novel views from predicted 3D geometry.
+            Extensive evaluations on VSI-Bench and STI-Bench demonstrate that ReRe substantially boosts open-source MLLMs to rival proprietary state-of-the-art performance.
+          </p>
+        </div>
+
+        <div class="key-points">
+          <div class="key-point">
+            <strong>Revisitable Reasoning</strong>
+            Reframes spatial reasoning as a revisitable process: the first answer is a provisional hypothesis, open to revision rather than a final conclusion.
+          </div>
+          <div class="key-point">
+            <strong>Training-free &amp; Inference-time</strong>
+            Works entirely at inference time on frozen MLLMs: no fine-tuning, no extra supervision, and no architectural changes.
+          </div>
+          <div class="key-point">
+            <strong>Open-source Rivals Proprietary</strong>
+            Lifts open-source MLLMs to rival proprietary state-of-the-art models on both VSI-Bench and STI-Bench.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <p class="rere-kicker">Motivation</p>
+        <h2 class="title is-3">Why Single-turn Spatial Reasoning Is Fragile</h2>
+        <div class="content has-text-justified">
+          <p>
+            Egocentric videos are trajectory-conditioned: the visual evidence is limited to what the recorded camera path happens to reveal, and the temporal order of frames rarely aligns with the scene's actual spatial topology.
+            Compounding this, general-purpose MLLMs lack explicit 3D world modeling and only implicitly enforce cross-frame correspondence.
+            So when a model must answer in one pass, it fills missing geometry with semantic priors and produces a plausible but wrong conclusion.
+          </p>
+          <p>
+            ReRe changes the interaction pattern.
+            Instead of asking the MLLM to directly finalize an answer, it first surfaces a traceable spatial hypothesis and then explicitly checks that hypothesis against new cross-view evidence.
+            This converts spatial reasoning from one-shot perception into hypothesis-driven verification.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-divider">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <p class="rere-kicker">Framework</p>
+        <h2 class="title is-3">Reason, Then Re-reason</h2>
+        <div class="content has-text-justified">
+          <img src="./static/images/framework.png" alt="Overview of the ReRe framework">
+          <p class="figure-caption">
+            <b>Overview of the ReRe framework.</b>
+            Given an egocentric video and a spatial query, ReRe operates in two phases: the <b>Reason Phase</b> forms an initial hypothesis from the original view, and the <b>Re-reason Phase</b> verifies or revises it against a synthesized allocentric view.
+            A <b>Geometry-to-Video</b> pipeline produces this complementary view from recovered 3D geometry via trajectory planning and view rendering.
+          </p>
+        </div>
+
+        <div class="pipeline">
+          <div class="pipeline-step">
+            <span class="tag">Phase I</span>
+            <h3 class="title is-5">Reason</h3>
+            <p>The MLLM observes the original egocentric video, identifies objects and spatial cues, infers relations, and outputs a provisional answer with an explicit thinking trace.</p>
+          </div>
+          <div class="pipeline-step">
+            <span class="tag">Phase II</span>
+            <h3 class="title is-5">Re-reason</h3>
+            <p>The MLLM compares a synthesized allocentric video with its prior hypothesis, reflects on inconsistencies, and confirms or revises the final answer.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <p class="rere-kicker">Geometry-to-Video</p>
+        <h2 class="title is-3">Making 3D Evidence Visible to MLLMs</h2>
+        <div class="content has-text-justified">
+          <img src="./static/images/geometry-to-video.png" alt="Geometry-to-Video pipeline">
+          <p class="figure-caption">
+            <b>Geometry-to-Video pipeline.</b>
+            ReRe predicts a 3D point cloud from the egocentric video via VGGT, plans a scene-spanning Oblique Sweep trajectory, and renders the point cloud into temporally coherent video frames via point-based rasterization.
+            This makes the geometric evidence natively consumable by frozen MLLMs without requiring architectural modifications or additional encoders.
+          </p>
+          <p>
+            The synthesized view is designed around two principles.
+            <i>Geometric complementarity</i> requires a viewpoint that reduces inter-object occlusion and maximizes spatial coverage.
+            <i>Native compatibility</i> means the geometric evidence must be presented in a familiar visual format rather than raw 3D representations like point clouds, so frozen MLLMs can consume it without architectural modifications.
+          </p>
+          <img src="./static/images/alternative-trajectories.png" alt="Comparison of allocentric trajectory designs">
+          <p class="figure-caption">
+            <b>Allocentric trajectory design.</b>
+            The Oblique Sweep follows a diagonal path through the scene center with an elevated tilt.
+            The Mid-level Traverse moves horizontally along the diameter at a fixed elevation, while the Bird's-eye Orbit circles the scene center from a top-down perspective.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <p class="rere-kicker">Experiments</p>
+        <h2 class="title is-3">Does ReRe Actually Work</h2>
+        <div class="content has-text-justified">
+          <p>
+            ReRe is evaluated zero-shot on VSI-Bench and the Static Understanding subset of STI-Bench, consistently improving frozen open-source models across the Qwen and InternVL families with no additional training.
+            The largest gains appear in tasks that benefit from extra geometric evidence, such as object size, distance, relative direction, and spatial relation reasoning.
+            For each benchmark we report the full subtask breakdown.
+          </p>
+        </div>
+
+        <p style="text-align: center; margin-bottom: 0;"><b>VSI-Bench Results</b></p>
+        <div class="result-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Avg.</th>
+                <th>Obj. Count</th>
+                <th>Abs. Dist.</th>
+                <th>Obj. Size</th>
+                <th>Room Size</th>
+                <th>Rel. Dist.</th>
+                <th>Rel. Dir.</th>
+                <th>Route Plan</th>
+                <th>Appr. Order</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GPT-4o</td>
+                <td>34.0</td>
+                <td>46.2</td>
+                <td>5.3</td>
+                <td>43.8</td>
+                <td>38.2</td>
+                <td>37.0</td>
+                <td>41.3</td>
+                <td>31.5</td>
+                <td>28.5</td>
+              </tr>
+              <tr>
+                <td>Qwen2.5-VL-3B</td>
+                <td>26.4</td>
+                <td>15.8</td>
+                <td>23.9</td>
+                <td>33.4</td>
+                <td>27.8</td>
+                <td>20.5</td>
+                <td>34.4</td>
+                <td>29.9</td>
+                <td>21.5</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>28.2 <span class="gain">+1.8</span></td>
+                <td>16.7</td>
+                <td>25.0</td>
+                <td>35.3</td>
+                <td>25.3</td>
+                <td>31.4</td>
+                <td>35.7</td>
+                <td>28.9</td>
+                <td>17.3</td>
+              </tr>
+              <tr>
+                <td>Qwen2.5-VL-7B</td>
+                <td>24.8</td>
+                <td>11.2</td>
+                <td>12.2</td>
+                <td>22.8</td>
+                <td>29.9</td>
+                <td>33.8</td>
+                <td>36.0</td>
+                <td>32.0</td>
+                <td>24.9</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>29.5 <span class="gain">+4.7</span></td>
+                <td>18.0</td>
+                <td>18.8</td>
+                <td>40.0</td>
+                <td>31.1</td>
+                <td>34.1</td>
+                <td>35.3</td>
+                <td>32.5</td>
+                <td>22.0</td>
+              </tr>
+              <tr>
+                <td>Qwen3-VL-2B</td>
+                <td>22.5</td>
+                <td>14.2</td>
+                <td>14.7</td>
+                <td>29.8</td>
+                <td>10.8</td>
+                <td>19.9</td>
+                <td>34.1</td>
+                <td>23.7</td>
+                <td>19.4</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>31.0 <span class="gain">+8.5</span></td>
+                <td>17.4</td>
+                <td>23.4</td>
+                <td>50.5</td>
+                <td>21.0</td>
+                <td>25.8</td>
+                <td>36.7</td>
+                <td>27.8</td>
+                <td>26.2</td>
+              </tr>
+              <tr>
+                <td>Qwen3-VL-4B</td>
+                <td>30.7</td>
+                <td>14.8</td>
+                <td>22.0</td>
+                <td>41.6</td>
+                <td>33.5</td>
+                <td>30.1</td>
+                <td>38.4</td>
+                <td>23.7</td>
+                <td>29.5</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>36.5 <span class="gain">+5.8</span></td>
+                <td>21.1</td>
+                <td>26.7</td>
+                <td>50.2</td>
+                <td>35.8</td>
+                <td>37.2</td>
+                <td>43.1</td>
+                <td>28.9</td>
+                <td>34.1</td>
+              </tr>
+              <tr>
+                <td>Qwen3-VL-8B</td>
+                <td>30.5</td>
+                <td>16.4</td>
+                <td>20.7</td>
+                <td>43.0</td>
+                <td>28.0</td>
+                <td>36.8</td>
+                <td>35.1</td>
+                <td>22.7</td>
+                <td>26.9</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>35.8 <span class="gain">+5.2</span></td>
+                <td>19.5</td>
+                <td>25.8</td>
+                <td>49.8</td>
+                <td>31.3</td>
+                <td>39.7</td>
+                <td>41.0</td>
+                <td>29.4</td>
+                <td>33.8</td>
+              </tr>
+              <tr>
+                <td>InternVL2.5-4B</td>
+                <td>31.3</td>
+                <td>37.6</td>
+                <td>24.5</td>
+                <td>37.4</td>
+                <td>22.7</td>
+                <td>32.0</td>
+                <td>33.2</td>
+                <td>27.8</td>
+                <td>26.9</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>32.3 <span class="gain">+1.0</span></td>
+                <td>35.8</td>
+                <td>23.3</td>
+                <td>36.9</td>
+                <td>23.7</td>
+                <td>32.5</td>
+                <td>42.1</td>
+                <td>30.9</td>
+                <td>22.8</td>
+              </tr>
+              <tr>
+                <td>InternVL2.5-8B</td>
+                <td>35.5</td>
+                <td>22.5</td>
+                <td>28.4</td>
+                <td>45.6</td>
+                <td>35.3</td>
+                <td>35.6</td>
+                <td>43.3</td>
+                <td>32.5</td>
+                <td>29.9</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>36.7 <span class="gain">+1.2</span></td>
+                <td>19.1</td>
+                <td>29.7</td>
+                <td>46.7</td>
+                <td>37.9</td>
+                <td>36.5</td>
+                <td>46.9</td>
+                <td>31.4</td>
+                <td>32.0</td>
+              </tr>
+              <tr>
+                <td>InternVL3-2B</td>
+                <td>26.5</td>
+                <td>42.2</td>
+                <td>22.8</td>
+                <td>26.4</td>
+                <td>17.6</td>
+                <td>25.2</td>
+                <td>34.3</td>
+                <td>25.8</td>
+                <td>10.8</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>29.9 <span class="gain">+3.4</span></td>
+                <td>37.9</td>
+                <td>24.3</td>
+                <td>27.2</td>
+                <td>16.6</td>
+                <td>32.0</td>
+                <td>43.2</td>
+                <td>26.8</td>
+                <td>18.3</td>
+              </tr>
+              <tr>
+                <td>InternVL3-8B</td>
+                <td>32.6</td>
+                <td>40.4</td>
+                <td>23.3</td>
+                <td>43.4</td>
+                <td>30.1</td>
+                <td>34.9</td>
+                <td>33.4</td>
+                <td>30.9</td>
+                <td>19.3</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>35.5 <span class="gain">+2.9</span></td>
+                <td>38.8</td>
+                <td>31.1</td>
+                <td>44.4</td>
+                <td>30.0</td>
+                <td>37.2</td>
+                <td>37.3</td>
+                <td>30.9</td>
+                <td>23.6</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p style="text-align: center; margin-bottom: 0;"><b>STI-Bench (Static Subset) Results</b></p>
+        <div class="result-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Avg.</th>
+                <th>Dim. Meas.</th>
+                <th>Spatial Rel.</th>
+                <th>3D Video Grounding</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GPT-4o</td>
+                <td>31.0</td>
+                <td>24.9</td>
+                <td>49.6</td>
+                <td>28.1</td>
+              </tr>
+              <tr>
+                <td>Gemini-2.0-Flash</td>
+                <td>36.9</td>
+                <td>33.7</td>
+                <td>50.0</td>
+                <td>33.7</td>
+              </tr>
+              <tr>
+                <td>Gemini-2.5-Pro</td>
+                <td>37.1</td>
+                <td>34.2</td>
+                <td>53.4</td>
+                <td>32.3</td>
+              </tr>
+              <tr>
+                <td>Qwen3-VL-2B</td>
+                <td>22.2</td>
+                <td>18.0</td>
+                <td>31.5</td>
+                <td>21.8</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>30.2 <span class="gain">+8.0</span></td>
+                <td>24.6</td>
+                <td>50.0</td>
+                <td>26.2</td>
+              </tr>
+              <tr>
+                <td>Qwen3-VL-4B</td>
+                <td>29.7</td>
+                <td>29.8</td>
+                <td>41.8</td>
+                <td>24.3</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>34.4 <span class="gain">+4.7</span></td>
+                <td>33.6</td>
+                <td>48.6</td>
+                <td>28.7</td>
+              </tr>
+              <tr>
+                <td>Qwen3-VL-8B</td>
+                <td>27.9</td>
+                <td>29.4</td>
+                <td>43.8</td>
+                <td>19.2</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>30.9 <span class="gain">+3.0</span></td>
+                <td>29.1</td>
+                <td>44.5</td>
+                <td>26.2</td>
+              </tr>
+              <tr>
+                <td>InternVL2.5-4B</td>
+                <td>30.5</td>
+                <td>25.9</td>
+                <td>43.1</td>
+                <td>29.0</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>30.6 <span class="gain">+0.1</span></td>
+                <td>22.2</td>
+                <td>43.2</td>
+                <td>32.5</td>
+              </tr>
+              <tr>
+                <td>InternVL2.5-8B</td>
+                <td>32.1</td>
+                <td>30.1</td>
+                <td>45.9</td>
+                <td>27.8</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>34.8 <span class="gain">+2.7</span></td>
+                <td>33.2</td>
+                <td>49.3</td>
+                <td>29.7</td>
+              </tr>
+              <tr>
+                <td>InternVL3-2B</td>
+                <td>22.6</td>
+                <td>20.1</td>
+                <td>28.8</td>
+                <td>22.1</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>26.7 <span class="gain">+4.1</span></td>
+                <td>22.5</td>
+                <td>43.8</td>
+                <td>22.7</td>
+              </tr>
+              <tr>
+                <td>InternVL3-8B</td>
+                <td>24.5</td>
+                <td>20.1</td>
+                <td>44.5</td>
+                <td>19.2</td>
+              </tr>
+              <tr class="ours-row">
+                <td>+ ReRe</td>
+                <td>27.8 <span class="gain">+3.3</span></td>
+                <td>28.0</td>
+                <td>37.0</td>
+                <td>23.3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <p class="rere-kicker">Ablations</p>
+        <h2 class="title is-3">What Makes ReRe Work</h2>
+        <div class="analysis-grid">
+          <div class="analysis-item">
+            <strong>The revisiting process is what matters.</strong>
+            Naively combining the two views barely helps: concatenation disrupts temporal coherence, and interleaving still lacks a focused verification objective.
+            It is the structured two-phase process, not merely having an extra view available, that drives the gain.
+          </div>
+          <div class="analysis-item">
+            <strong>New evidence, not just thinking twice.</strong>
+            Re-reasoning over the original video again performs even worse than the baseline: without new information, a second pass only amplifies the initial hallucination.
+            The bottleneck is partial observability, not insufficient deliberation. ReRe works because the second phase brings in complementary geometry.
+          </div>
+          <div class="analysis-item">
+            <strong>The two views are complementary.</strong>
+            Reasoning on the synthesized view alone falls short of the full pipeline: it captures geometry but loses fine visual detail.
+            ReRe keeps the egocentric video as the semantic anchor (<i>what</i> objects are) and uses the synthesized view for structural disambiguation (<i>where</i> they are).
+          </div>
+          <div class="analysis-item">
+            <strong>Oblique Sweep is the right trajectory.</strong>
+            A mid-level traverse fails to resolve occlusions, while a strict bird's-eye orbit drifts too far from the pre-training distribution and causes recognition failures.
+            The Oblique Sweep stays elevated enough to expose hidden layouts, yet oblique enough to remain visually recognizable.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <p class="rere-kicker">Qualitative Results</p>
+        <h2 class="title is-3">Cross-view Revisiting Corrects Spatial Errors</h2>
+        <div class="content has-text-justified">
+          <img src="./static/images/appendix-case.png" alt="Qualitative ReRe results on VSI-Bench">
+          <p class="figure-caption">
+            <b>Qualitative results on VSI-Bench.</b>
+            ReRe resolves spatial ambiguities across four representative cases:
+            (a)-(b) object counting, where synthesized novel views reveal previously unobserved objects such as a second monitor or a second bed;
+            (c) absolute distance, where the expanded view clarifies the separation between the sofa and bed;
+            and (d) relative direction, where the synthesized view disambiguates the window, door, and lamp configuration, correcting a right-side prediction to the correct left.
+            In each case, the Re-reason Phase uses newly synthesized geometric evidence to revise an erroneous initial judgment.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <p class="rere-kicker">Discussion</p>
+        <h2 class="title is-3">How ReRe Stays Robust and Practical</h2>
+        <div class="analysis-grid">
+          <div class="analysis-item">
+            <strong>What if the 3D reconstruction is imperfect?</strong>
+            ReRe does not need metric-perfect geometry. VGGT fuses the whole video into one point cloud, so regions occluded in one frame are recovered from others; low-confidence points are left blank, which frozen MLLMs read as blind spots rather than fabricated objects; and the egocentric video stays the semantic anchor, so the synthesized view only ever serves as verification.
+          </div>
+          <div class="analysis-item">
+            <strong>What does the extra step cost?</strong>
+            The overhead is concentrated in a single 3D reconstruction step, while rendering and the second reasoning pass add little on top. This cost is orthogonal to our contribution: the reasoning protocol stays fixed while 3D backbones keep getting faster, so ReRe inherits those speedups. And since geometry depends only on the scene, it can be reconstructed once and reused across every query about the same environment.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{ma2026reason,
+  title={Reason, Then Re-reason: Cross-view Revisiting Improves Spatial Reasoning},
+  author={Ma, Chaofan and Mao, Zhenjie and Yang, Yuhuan and Zeng, Fanqin and Shi, Yue and Zhou, Yingjie and Cao, Xiaofeng and Yao, Jiangchao},
+  booktitle={International Conference on Machine Learning},
+  year={2026}
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            Thanks for the project template by <a href="https://github.com/nerfies/nerfies.github.io">Nerfies Project</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
